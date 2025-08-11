@@ -24,41 +24,45 @@ export class SessionsController {
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  createSession(
-    @Body() req: CreateSessionRequest,
+  async createSession(
     @ApiKey() apiKey: string,
-  ): SessionResponse {
-    return this.sessionsService.createSession(req, apiKey);
+    @Body() req: CreateSessionRequest,
+  ): Promise<SessionResponse> {
+    const session = await this.sessionsService.createSession(apiKey,req);
+    return session;
   }
 
   @Get()
-  getSessions(
-    @Query() req: GetSessionsRequest,
+  async getSessions(
     @ApiKey() apiKey: string,
-  ): SessionsListResponse {
-    return this.sessionsService.getSessions(req, apiKey);
+    @Query() req: GetSessionsRequest
+  ): Promise<SessionsListResponse> {
+    const sessionList = await this.sessionsService.getSessions(apiKey,req);
+    return sessionList;
   }
 
   @Get(':id')
-  getSessionById(
-    @Param('id') id: string,
+  async getSessionById(
     @ApiKey() apiKey: string,
-  ): SessionResponse {
-    return this.sessionsService.getSessionById(id, apiKey);
+    @Param('id') id: string,
+  ): Promise<SessionResponse> {
+    const session = await this.sessionsService.getSessionById(id, apiKey);
+    return session;
   }
 
   @Patch(':id')
-  updateSession(
+  async updateSession(
     @Param('id') id: string,
-    @Body() req: UpdateSessionRequest,
     @ApiKey() apiKey: string,
-  ): SessionResponse {
-    return this.sessionsService.updateSession(id, req, apiKey);
+    @Body() req: UpdateSessionRequest,
+  ): Promise<SessionResponse> {
+    const session = await this.sessionsService.updateSession(id, apiKey, req);
+    return session;
   }
 
   @Delete(':id')
   @HttpCode(HttpStatus.OK)
-  deleteSession(@Param('id') id: string, @ApiKey() apiKey: string): void {
-    this.sessionsService.deleteSession(id, apiKey);
+  async deleteSession(@Param('id') id: string, @ApiKey() apiKey: string) {
+    await this.sessionsService.deleteSession(id, apiKey);
   }
 }

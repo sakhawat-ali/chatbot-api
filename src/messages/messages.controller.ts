@@ -11,9 +11,9 @@ import {
 import { MessagesService } from './messages.service';
 import { MessageResponse } from './dto/message-response.dto';
 import { CreateMessageRequest } from './dto/create-message-request.dto';
-import { GetMessagesRequest } from './dto/get-messages-request.dto';
 import { ApiKey } from 'src/common/decorator/api-key.decorator';
 import { MessagesListResponse } from './dto/messages-list-response.dto';
+import { PaginationInfo } from './dto/pagination-info.dto';
 
 @Controller('api/vi/sessions/:sessionId/messages')
 export class MessagesController {
@@ -21,29 +21,29 @@ export class MessagesController {
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  createMessage(
+  async createMessage(
     @Param('sessionId') sessionId: string,
-    @Body() req: CreateMessageRequest,
     @ApiKey() apiKey: string,
-  ): MessageResponse {
-    return this.messagesService.createMessage(sessionId, req, apiKey);
+    @Body() req: CreateMessageRequest,
+  ): Promise<MessageResponse> {
+    return await this.messagesService.createMessage(sessionId, apiKey, req);
   }
 
   @Get()
-  getMessages(
+  async getMessages(
     @Param('sessionId') sessionId: string,
-    @Query() req: GetMessagesRequest,
     @ApiKey() apiKey: string,
-  ): MessagesListResponse {
-    return this.messagesService.getMessages(sessionId, req, apiKey);
+    @Query() req: PaginationInfo,
+  ): Promise<MessagesListResponse> {
+    return await this.messagesService.getMessages(sessionId, apiKey, req);
   }
 
   @Get(':id')
-  getMessageById(
+  async getMessageById(
     @Param('sessionId') sessionId: string,
     @Param('id') id: string,
     @ApiKey() apiKey: string,
-  ): MessageResponse {
-    return this.messagesService.getMessageById(sessionId, id, apiKey);
+  ): Promise<MessageResponse> {
+    return await this.messagesService.getMessageById(sessionId, id, apiKey);
   }
 }

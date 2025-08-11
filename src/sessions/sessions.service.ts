@@ -4,61 +4,101 @@ import { SessionsListResponse } from './dto/session-list-response.dto';
 import { UpdateSessionRequest } from './dto/update-session-request.dto';
 import { CreateSessionRequest } from './dto/create-session.dto';
 import { GetSessionsRequest } from './dto/get-sessions.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { ChatSession } from 'src/entities';
+import { FindOptionsWhere, Repository } from 'typeorm';
 
 @Injectable()
 export class SessionsService {
-  createSession(
+  constructor(
+    @InjectRepository(ChatSession)
+    private sessionRepo: Repository<ChatSession>,
+  ) {}
+
+  async createSession(
+    apiKey: string,
     createSession: CreateSessionRequest,
+  ): Promise<SessionResponse> {
+    const title = createSession.title || this.generateAutoTitle();
+
+    const session = this.sessionRepo.create({
+      apiKey,
+      title: title,
+      isFavorite: false,
+    });
+
+    return await this.sessionRepo.save(session);
+  }
+
+  async getSessions(
     apiKey: string,
-  ): SessionResponse {
+    getSession: GetSessionsRequest,
+  ): Promise<SessionsListResponse> {
+    const { favorite, page = 1, limit = 10 } = getSession;
+
+    const where: FindOptionsWhere<ChatSession> = { apiKey };
+    if (favorite !== undefined) {
+      where.isFavorite = favorite;
+    }
+
+    const totalCount = await this.sessionRepo.count({ where });
+
+    const sessions = await this.sessionRepo.find({
+      where,
+      order: { createdAt: 'DESC' },
+      skip: (page - 1) * limit,
+      take: limit,
+    });
+
     return {
-      id: '1',
-      title: createSession.title || 'New Session',
-      isFavorite: false,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      apiKey: apiKey,
-      messages: [],
+      sessions,
+      totalCount,
+      page,
+      limit,
+      totalPages: Math.ceil(totalCount / limit),
     };
   }
 
-  getSessions(query: GetSessionsRequest, apiKey: string): SessionsListResponse {
-    return {
-      sessions: [],
-      totalCount: 0,
-      page: query.page || 1,
-      limit: query.limit || 10,
-      totalPages: 0,
-    };
+  async getSessionById(id: string, apiKey: string): Promise<SessionResponse> {
+    const session = await this.sessionRepo.findOne({
+      where: { id, apiKey },
+    });
+
+    if (!session) {
+      throw new Error('Session not found');
+    }
+    return { ...session, messages: [] };
   }
 
-  getSessionById(id: string, apiKey: string): SessionResponse {
-    return {
-      id: id,
-      title: 'New Session',
-      isFavorite: false,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      apiKey: apiKey,
-      messages: [],
-    };
-  }
-
-  updateSession(
+  async updateSession(
     id: string,
-    updateSession: UpdateSessionRequest,
     apiKey: string,
-  ): SessionResponse {
-    return {
-      id: id,
-      title: updateSession.title || 'Updated Session',
-      isFavorite: updateSession.isFavorite || false,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      apiKey: apiKey,
-      messages: [],
-    };
+    updateSession: UpdateSessionRequest,
+  ): Promise<SessionResponse> {
+    const session = await this.getSessionById(id, apiKey);
+
+    if (updateSession.title !== undefined) {
+      if (!updateSession.title.trim()) {
+        throw new Error('Session title cannot be empty');
+      }
+      session.title = updateSession.title.trim();
+    }
+
+    if (updateSession.isFavorite !== undefined) {
+      session.isFavorite = updateSession.isFavorite;
+    }
+
+    return await this.sessionRepo.save(session);
   }
 
-  deleteSession(id: string, apiKey: string): void {}
+async deleteSession(id: string, apiKey: string): Promise<void> {
+    const session = await this.getSessionById(id, apiKey);
+    await this.sessionRepo.remove(session);
+  }
+
+  private generateAutoTitle(): string {
+    const now = new Date();
+    const dateStr = now.toISOString().slice(0, 16).replace('T', ' ');
+    return `New Chat - ${dateStr}`;
+  }
 }

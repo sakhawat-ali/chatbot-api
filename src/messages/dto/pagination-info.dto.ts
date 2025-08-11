@@ -3,7 +3,7 @@ export enum MessageOrder {
   DESC = 'desc',
 }
 
-export class GetMessagesRequest {
+export class PaginationInfo {
   page?: number = 1;
   limit?: number = 50;
   order?: MessageOrder = MessageOrder.ASC;

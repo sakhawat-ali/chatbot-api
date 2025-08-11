@@ -4,11 +4,13 @@ import {
   ArgumentsHost,
   HttpException,
   HttpStatus,
+  Logger
 } from '@nestjs/common';
 import { Request, Response } from 'express';
 
 @Catch()
 export class GlobalExceptionFilter implements ExceptionFilter {
+  private readonly logger = new Logger('ExceptionHandler');
   catch(exception: unknown, host: ArgumentsHost): void {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
@@ -44,9 +46,9 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     };
 
     if (status >= 500) {
-      console.error(`Server Error [${status}]: ${message}`, exception);
+      this.logger.error(`Server Error [${status}]: ${message}`, exception);
     } else {
-      console.warn(`Client Error [${status}]: ${message}`);
+      this.logger.warn(`Client Error [${status}]: ${message}`);
     }
 
     // Send response

@@ -8,9 +8,10 @@ import configuration from './config/configuration';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ChatMessage, ChatSession } from './entities';
 import { APP_FILTER, APP_GUARD } from '@nestjs/core';
-import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { ThrottlerModule } from '@nestjs/throttler';
 import { ApiKeyThrottlerGuard } from './common/guard/api-key-throttle.guard';
 import { GlobalExceptionFilter } from './common/filters/global-exception.filter';
+import { LoggerModule } from './common/logger/logger.module';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { GlobalExceptionFilter } from './common/filters/global-exception.filter'
     }),
     SessionsModule,
     MessagesModule,
+    LoggerModule
   ],
   controllers: [AppController],
   providers: [

@@ -28,7 +28,7 @@ export class ApiKeyGuard implements CanActivate {
     const validApiKeys = this.configService.get<string[]>('auth.apiKeys') || [];
 
     if (!validApiKeys.includes(token)) {
-      throw new Error('Invalid API key');
+      throw new ForbiddenException('Invalid API key');
     }
 
     return true;

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { SessionResponse } from './dto/session-response.dto';
 import { SessionsListResponse } from './dto/session-list-response.dto';
 import { UpdateSessionRequest } from './dto/update-session-request.dto';
@@ -65,7 +65,7 @@ export class SessionsService {
     });
 
     if (!session) {
-      throw new Error('Session not found');
+      throw new NotFoundException('Session does not exist');
     }
     return { ...session, messages: [] };
   }
@@ -79,7 +79,7 @@ export class SessionsService {
 
     if (updateSession.title !== undefined) {
       if (!updateSession.title.trim()) {
-        throw new Error('Session title cannot be empty');
+        throw new BadRequestException('Session title cannot be empty');
       }
       session.title = updateSession.title.trim();
     }

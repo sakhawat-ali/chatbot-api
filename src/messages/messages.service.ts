@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateMessageRequest } from './dto/create-message-request.dto';
 import { MessageResponse } from './dto/message-response.dto';
 import { MessagesListResponse } from './dto/messages-list-response.dto';
@@ -21,10 +21,15 @@ export class MessagesService {
     apiKey: string,
     createMessage: CreateMessageRequest,
   ): Promise<MessageResponse> {
-    const isSessionExists = await this.sessionRepo.exists({
-      where: { id: sessionId, apiKey },
-    });
+   
     this.validateSession(sessionId, apiKey);
+
+    if (createMessage.content.trim().length === 0) {
+      throw new BadRequestException(
+        'Message content cannot be empty or only whitespace',
+      );
+    }
+
     const message = this.messageRepo.create({
       sessionId,
       sender: createMessage.sender,
@@ -75,7 +80,7 @@ export class MessagesService {
 
     const message = await this.messageRepo.findOne({ where: { id } });
     if (!message) {
-      throw new Error('Message not found');
+      throw new NotFoundException('Message not found');
     }
     return { ...message, context: message?.context || undefined };
   }
@@ -86,7 +91,7 @@ export class MessagesService {
     });
 
     if (!isSessionExists) {
-      throw Error('Session does not exists');
+      throw new NotFoundException('Session does not exists');
     }
   }
 }

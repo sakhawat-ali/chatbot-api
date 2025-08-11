@@ -12,8 +12,8 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { SessionsService } from './sessions.service';
-import { CreateSessionRequest } from './dto/create-session.dto';
-import { GetSessionsRequest } from './dto/get-sessions.dto';
+import { CreateSessionRequest } from './dto/create-session-request.dto';
+import { GetSessionsRequest } from './dto/get-sessions-request.dto';
 import { SessionResponse } from './dto/session-response.dto';
 import { SessionsListResponse } from './dto/session-list-response.dto';
 import { UpdateSessionRequest } from './dto/update-session-request.dto';

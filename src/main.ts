@@ -8,10 +8,16 @@ async function bootstrap() {
   const openApiConfig = new DocumentBuilder()
     .setTitle('Chatbot API')
     .setVersion('1.0')
-    .addApiKey(
-      { type: 'apiKey', name: 'Api-Key', in: 'header' },
-      'Api-Key',
+    .addBearerAuth(
+      {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+        name: 'Authorization',
+      },
+      'BearerAuth',
     )
+    .addSecurityRequirements('BearerAuth')
     .build();
   const document = SwaggerModule.createDocument(app, openApiConfig);
   SwaggerModule.setup('api-docs', app, document);

@@ -9,6 +9,7 @@ import {
   Patch,
   Post,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { SessionsService } from './sessions.service';
 import { CreateSessionRequest } from './dto/create-session.dto';
@@ -17,7 +18,9 @@ import { SessionResponse } from './dto/session-response.dto';
 import { SessionsListResponse } from './dto/session-list-response.dto';
 import { UpdateSessionRequest } from './dto/update-session-request.dto';
 import { ApiKey } from 'src/common/decorator/api-key.decorator';
+import { ApiKeyGuard } from 'src/common/guard/api-key.guard';
 
+@UseGuards(ApiKeyGuard)
 @Controller('api/v1/sessions')
 export class SessionsController {
   constructor(private readonly sessionsService: SessionsService) {}

@@ -7,6 +7,7 @@ import {
   Param,
   Post,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { MessagesService } from './messages.service';
 import { MessageResponse } from './dto/message-response.dto';
@@ -14,7 +15,9 @@ import { CreateMessageRequest } from './dto/create-message-request.dto';
 import { ApiKey } from 'src/common/decorator/api-key.decorator';
 import { MessagesListResponse } from './dto/messages-list-response.dto';
 import { PaginationInfo } from './dto/pagination-info.dto';
+import { ApiKeyGuard } from 'src/common/guard/api-key.guard';
 
+@UseGuards(ApiKeyGuard)
 @Controller('api/vi/sessions/:sessionId/messages')
 export class MessagesController {
   constructor(private readonly messagesService: MessagesService) {}

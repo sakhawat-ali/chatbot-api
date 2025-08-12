@@ -9,7 +9,7 @@ export class ApiKeyThrottlerGuard extends ThrottlerGuard {
     if (!authHeader) {
       return req.ip || 'unknown';
     }
-    const [_, token] = authHeader.split(' ');
+    const [, token] = authHeader.split(' ');
     if (token) return `api-key:${token}`;
     return req.ip || 'unknown';
   }

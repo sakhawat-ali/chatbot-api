@@ -1,5 +1,3 @@
-import { registerAs } from '@nestjs/config';
-
-export default registerAs('auth', () => ({
+export default () => ({
   apiKeys: process.env.API_KEYS?.split(',') || [],
-}));
+});

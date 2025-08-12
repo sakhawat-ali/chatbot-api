@@ -6,7 +6,8 @@ import { ConfigService } from '@nestjs/config';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-    const configService = app.get(ConfigService);
+  const configService = app.get(ConfigService);
+  const port = configService.get<number>('port') || 8080;
   // Enable CORS
   app.enableCors({
     origin: configService.get('cors').origin,
@@ -27,6 +28,7 @@ async function bootstrap() {
     }),
   );
 
+  // Setup Swagger
   const openApiConfig = new DocumentBuilder()
     .setTitle('Chatbot API')
     .setVersion('1.0')
@@ -44,6 +46,8 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, openApiConfig);
   SwaggerModule.setup('api-docs', app, document);
 
-  await app.listen(process.env.PORT ?? 3000);
+  await app.listen(port, () => {
+    console.log(`Application is running on Port: ${port}`);
+  });
 }
 bootstrap();
